@@ -11,13 +11,13 @@ when needed.
 
 ## Installation
 
-```
+```bash
 $ npm install -g gitlab-search
 ```
 
 To finish the installation you need to configure the personal access token you've created previously:
 
-```
+```bash
 $ gitlab-search setup <your personal access token>
 ```
 
@@ -25,7 +25,7 @@ That will create a `.gitlabsearchrc` file in the current directory. That configu
 in different places on your machine, valid locations are described in the [rc package's README](https://www.npmjs.com/package/rc#standards).
 You can decide where that file is saved when invoking the setup command, see more details in its help:
 
-```
+```bash
 $ gitlab-search setup --help
 ```
 
@@ -33,7 +33,7 @@ $ gitlab-search setup --help
 
 Searching through all the repositories you've got access to:
 
-```
+```bash
 $ gitlab-search [options] [command] <search-term>
 
 Options:
@@ -53,7 +53,7 @@ Commands:
 
 To search a self-hosted installation of GitLab, `setup` has options for, among other things, setting a custom domain:
 
-```
+```bash
 $ gitlab-search setup --help
 
 Usage: setup [options] <personal-access-token>
@@ -71,11 +71,36 @@ Options:
   -h, --help              display help for command
 ```
 
+## Use as Container Image
+
+If you don't want to install Node on your local System to build `gitlab-search`, you can also use a Container Image.
+
+```bash
+docker build --tag gitlab-search:v1.5.0 .
+```
+
+Here is an example of how you can use `gitlab-search` using a zsh function:
+
+```bash
+function gitlab-search() {
+  # Ensure files exist to avoid being created by Docker and thus owned by root:
+  touch "${HOME}"/.gitlabsearchrc
+  docker run \
+    --interactive \
+    --rm \
+    --tty \
+    --volume="${HOME}/.gitlabsearchrc:${HOME}/.gitlabsearchrc:rw" \
+    --volume="/run/user/$(id -u):/run/user/$(id -u):ro" \
+    --workdir="${PWD}" \
+    gitlab-search:1.5.0 $@
+}
+```
+
 ## Debugging
 
 If something seems fishy or you're just curious what `gitlab-search` does under the hood, enabling debug logging helps:
 
-```
+```bash
 $ DEBUG=1 gitlab-search here-is-my-search-term
 Requesting: GET https://gitlab.com/api/v4/groups?per_page=100
 Using groups: name-of-group1, name-of-group2

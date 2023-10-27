@@ -1,0 +1,6 @@
+*
+#bin
+#bsconfig.json
+!package.json
+!package-lock.json
+!src/
